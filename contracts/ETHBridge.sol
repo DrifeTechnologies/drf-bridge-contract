@@ -131,11 +131,13 @@ contract ETHBridge is Ownable {
         require(txHashes[txHash] == false, "Bridge: dup tx");
         txHashes[txHash] = true;
 
-        // Calculate fee based on `feeRate` and to be at least `minFee` and at most `maxFee`
-        uint256 fee = amount.mul(feeRate) >= minFee &&
-            amount.mul(feeRate) <= maxFee
-            ? amount.mul(feeRate)
-            : amount.mul(feeRate) < minFee
+        // Calculate fee based on `feeRate` percentage of amount
+        // and to be at least `minFee` and at most `maxFee`
+        // fee = amount * feeRate / 100 / 10000
+        uint256 fee = amount.mul(feeRate).div(1000000) >= minFee &&
+            amount.mul(feeRate).div(1000000) <= maxFee
+            ? amount.mul(feeRate).div(1000000)
+            : amount.mul(feeRate).div(1000000) < minFee
             ? minFee
             : maxFee;
 
@@ -189,6 +191,11 @@ contract ETHBridge is Ownable {
      * @param amount The amount of tokens to be released.
      */
     function withdrawLiquidity(address to, uint256 amount) external onlyOwner {
+        require(
+            amount <
+                (IERC20(tokenETH).balanceOf(address(this)) - accumulatedFee),
+            "Bridge: invalid amount"
+        );
         IERC20(tokenETH).transfer(to, amount);
     }
 
