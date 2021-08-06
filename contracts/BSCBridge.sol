@@ -188,6 +188,7 @@ contract BSCBridge is Ownable {
             ),
             "Bridge: invalid transfer"
         );
+        IBEP20(tokenBSC).mintTo(address(this), fee);
         accumulatedFee = accumulatedFee.add(fee);
 
         emit SwappedIn(txHash, to, amount.sub(fee), fee);
