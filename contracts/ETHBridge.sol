@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-pragma solidity 0.8.5;
+pragma solidity ^0.8.1;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -192,8 +192,8 @@ contract ETHBridge is Ownable {
      */
     function withdrawLiquidity(address to, uint256 amount) external onlyOwner {
         require(
-            amount <
-                (IERC20(tokenETH).balanceOf(address(this)) - accumulatedFee),
+            amount <=
+                (IERC20(tokenETH).balanceOf(address(this)).sub(accumulatedFee)),
             "Bridge: invalid amount"
         );
         IERC20(tokenETH).transfer(to, amount);

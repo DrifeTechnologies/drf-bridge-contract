@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-pragma solidity 0.8.5;
+pragma solidity ^0.8.1;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
@@ -8,6 +8,11 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
  * @dev Interface of the BEP20 standard used by the DRF token
  */
 interface IBEP20 {
+    /**
+     * @dev Returns the amount of tokens owned by `account`.
+     */
+    function balanceOf(address account) external view returns (uint256);
+
     /**
      * @dev Moves `amount` tokens from the caller's account to `recipient`.
      *
@@ -227,8 +232,8 @@ contract BSCBridge is Ownable {
      */
     function withdrawLiquidity(address to, uint256 amount) external onlyOwner {
         require(
-            amount <
-                (IERC20(tokenBSC).balanceOf(address(this)) - accumulatedFee),
+            amount <=
+                (IBEP20(tokenBSC).balanceOf(address(this)).sub(accumulatedFee)),
             "Bridge: invalid amount"
         );
         IBEP20(tokenBSC).transfer(to, amount);
